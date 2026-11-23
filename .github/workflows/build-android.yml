@@ -248,15 +248,26 @@ jobs:
           rm -rf app/build/outputs ../build-artifacts
           ./gradlew --version
 
-      - name: Setup Release Keystore or Prepare Debug Mode
+      - name: Setup Release Keystore or Prepare Debug Verification Mode
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          EXPECTED_RELEASE_CERT_SHA256: ${{ secrets.EXPECTED_RELEASE_CERT_SHA256 }}
         run: |
-          EFFECTIVE_KEY_PASSWORD="${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
-          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$EFFECTIVE_KEY_PASSWORD" ]; then
+          MISSING_SECRETS=""
+          [ -z "$KEYSTORE_BASE64" ] && MISSING_SECRETS="$MISSING_SECRETS KEYSTORE_BASE64"
+          [ -z "$KEYSTORE_PASSWORD" ] && MISSING_SECRETS="$MISSING_SECRETS KEYSTORE_PASSWORD"
+          [ -z "$KEY_ALIAS" ] && MISSING_SECRETS="$MISSING_SECRETS KEY_ALIAS"
+
+          if [ -n "$KEYSTORE_BASE64" ] || [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEY_ALIAS" ]; then
+            if [ -n "$MISSING_SECRETS" ]; then
+              echo "::error::Partial release signing secrets detected! Missing required GitHub Secret(s):${MISSING_SECRETS}. Refusing to proceed with mismatched or incomplete release configuration."
+              exit 1
+            fi
+
+            EFFECTIVE_KEY_PASSWORD="${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
             printf '%s' "$KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/release.keystore
             if [ ! -s android/app/release.keystore ]; then
               echo "::error::Decoded release.keystore is empty or invalid base64!"
@@ -271,6 +282,22 @@ jobs:
             fi
 
             CERT_SHA256=$(keytool -list -v -keystore android/app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" 2>/dev/null | grep -i "SHA256:" | head -n 1 | sed 's/.*SHA256:[[:space:]]*//')
+            if [ -z "$CERT_SHA256" ]; then
+              echo "::error::Could not extract SHA-256 certificate fingerprint from release.keystore!"
+              rm -f android/app/release.keystore
+              exit 1
+            fi
+
+            if [ -n "$EXPECTED_RELEASE_CERT_SHA256" ]; then
+              NORM_PINNED=$(printf '%s' "$EXPECTED_RELEASE_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+              NORM_KEYSTORE=$(printf '%s' "$CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+              if [ "$NORM_PINNED" != "$NORM_KEYSTORE" ]; then
+                echo "::error::Release keystore SHA-256 ($NORM_KEYSTORE) does not match EXPECTED_RELEASE_CERT_SHA256 ($NORM_PINNED)! Aborting to prevent INSTALL_FAILED_UPDATE_INCOMPATIBLE."
+                rm -f android/app/release.keystore
+                exit 1
+              fi
+            fi
+
             echo "ANDROID_KEYSTORE_FILE=release.keystore" >> "$GITHUB_ENV"
             echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
             echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
@@ -280,97 +307,145 @@ jobs:
             echo "HAS_RELEASE_KEY=true" >> "$GITHUB_ENV"
             echo "Production release keystore verified successfully (Cert SHA-256: ${CERT_SHA256})."
           else
-            echo "::warning::Release keystore secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS) are missing or incomplete. Skipping signed release bundle/APK build. Building debug APK successfully. To produce release updates, configure your original release keystore in GitHub Secrets."
-            echo "SIGNING_MODE=debug" >> "$GITHUB_ENV"
+            echo "::warning::Release keystore secrets missing:${MISSING_SECRETS}. Skipping Release APK & AAB build. Building Debug APK only for compilation verification (Debug APK CANNOT update existing Release installs)."
+            echo "SIGNING_MODE=debug-only" >> "$GITHUB_ENV"
             echo "HAS_RELEASE_KEY=false" >> "$GITHUB_ENV"
+            echo "MISSING_RELEASE_SECRETS=${MISSING_SECRETS}" >> "$GITHUB_ENV"
           fi
 
-      - name: Build Android AAB & APK
+      - name: Build Android AAB & Release APK (When Original Release Key Available)
+        if: env.HAS_RELEASE_KEY == 'true'
         working-directory: android
         run: |
-          if [ "${HAS_RELEASE_KEY}" = "true" ]; then
-            ./gradlew bundleRelease assembleRelease assembleDebug --no-daemon --stacktrace
-          else
-            ./gradlew assembleDebug --no-daemon --stacktrace
-          fi
+          ./gradlew bundleRelease assembleRelease --no-daemon --stacktrace
 
-      - name: Verify Signature & Stage Deliverables
+      - name: Build Android Debug APK (Fallback Verification Only When Release Secrets Missing)
+        if: env.HAS_RELEASE_KEY != 'true'
+        working-directory: android
+        run: |
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Verify Release Signature, Package Metadata, AAB Integrity & Stage Deliverables
+        if: env.HAS_RELEASE_KEY == 'true'
+        env:
+          EXPECTED_RELEASE_CERT_SHA256: ${{ secrets.EXPECTED_RELEASE_CERT_SHA256 }}
         run: |
           rm -rf build-artifacts
           mkdir -p build-artifacts/apk build-artifacts/aab
 
-          if [ "${HAS_RELEASE_KEY}" = "true" ]; then
-            AAB_FILE=$(find android/app/build/outputs/bundle/release -name "*.aab" -type f | head -n 1)
-            if [ -n "$AAB_FILE" ] && [ -s "$AAB_FILE" ]; then
-              cp "$AAB_FILE" build-artifacts/aab/blood-qatabah-release.aab
+          AAB_FILE=$(find android/app/build/outputs/bundle/release -name "*.aab" -type f | head -n 1)
+          if [ -z "$AAB_FILE" ] || [ ! -s "$AAB_FILE" ]; then
+            echo "::error::Android App Bundle (.aab) was NOT generated!"
+            exit 1
+          fi
+          unzip -tq "$AAB_FILE" > /dev/null
+          if ! unzip -l "$AAB_FILE" | grep -q "base/manifest/AndroidManifest.xml"; then
+            echo "::error::Generated AAB is missing base/manifest/AndroidManifest.xml!"
+            exit 1
+          fi
+          if ! jarsigner -verify "$AAB_FILE" >/dev/null 2>&1; then
+            echo "::error::Generated AAB signature verification failed!"
+            exit 1
+          fi
+          cp "$AAB_FILE" build-artifacts/aab/blood-qatabah-release.aab
+
+          RELEASE_APK=$(find android/app/build/outputs/apk/release -name "*.apk" ! -name "*-unsigned.apk" -type f | head -n 1)
+          if [ -z "$RELEASE_APK" ] || [ ! -s "$RELEASE_APK" ]; then
+            echo "::error::Signed Release APK was NOT generated! Found files:"
+            ls -la android/app/build/outputs/apk/release || true
+            exit 1
+          fi
+
+          APKSIGNER_BIN=$(find "$ANDROID_HOME/build-tools" -name "apksigner" -type f | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER_BIN" ]; then
+            echo "::error::apksigner not found under ANDROID_HOME/build-tools!"
+            exit 1
+          fi
+
+          echo "Verifying APK signature with $APKSIGNER_BIN..."
+          VERIFY_OUTPUT=$("$APKSIGNER_BIN" verify --verbose --print-certs "$RELEASE_APK")
+          echo "$VERIFY_OUTPUT"
+          APK_CERT_SHA256=$(printf '%s\n' "$VERIFY_OUTPUT" | grep -i "Signer #1 certificate SHA-256 digest:" | head -n 1 | awk -F': ' '{print $2}' | tr -d '[:space:]')
+          if [ -z "$APK_CERT_SHA256" ]; then
+            echo "::error::Failed to extract Signer #1 SHA-256 certificate digest from Release APK!"
+            exit 1
+          fi
+
+          NORM_EXPECTED=$(printf '%s' "$SIGNING_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          NORM_ACTUAL=$(printf '%s' "$APK_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          if [ "$NORM_EXPECTED" != "$NORM_ACTUAL" ]; then
+            echo "::error::APK signing certificate mismatch! Expected $NORM_EXPECTED but got $NORM_ACTUAL."
+            exit 1
+          fi
+          if [ -n "$EXPECTED_RELEASE_CERT_SHA256" ]; then
+            NORM_PINNED=$(printf '%s' "$EXPECTED_RELEASE_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+            if [ "$NORM_PINNED" != "$NORM_ACTUAL" ]; then
+              echo "::error::APK certificate ($NORM_ACTUAL) does not match pinned EXPECTED_RELEASE_CERT_SHA256 ($NORM_PINNED)!"
+              exit 1
             fi
+          fi
 
-            RELEASE_APK=$(find android/app/build/outputs/apk/release -name "*.apk" ! -name "*-unsigned.apk" -type f | head -n 1)
-            if [ -n "$RELEASE_APK" ] && [ -s "$RELEASE_APK" ]; then
-              cp "$RELEASE_APK" build-artifacts/apk/blood-qatabah-release.apk
+          AAPT2_BIN=$(find "$ANDROID_HOME/build-tools" -name "aapt2" -type f | sort -V | tail -n 1)
+          if [ -n "$AAPT2_BIN" ]; then
+            BADGING=$("$AAPT2_BIN" dump badging "$RELEASE_APK" | head -n 1)
+            echo "APK badging: $BADGING"
+            if ! printf '%s' "$BADGING" | grep -q "name='org.alnasr.bloodqatabah'"; then
+              echo "::error::APK applicationId mismatch! Expected org.alnasr.bloodqatabah, got: $BADGING"
+              exit 1
             fi
-          else
-            DEBUG_APK=$(find android/app/build/outputs/apk/debug -name "*.apk" -type f | head -n 1)
-            if [ -n "$DEBUG_APK" ] && [ -s "$DEBUG_APK" ]; then
-              cp "$DEBUG_APK" build-artifacts/apk/blood-qatabah-debug.apk
-              echo "Built debug APK successfully (signing mode: debug)."
+            if ! printf '%s' "$BADGING" | grep -q "versionCode='${ANDROID_VERSION_CODE}'"; then
+              echo "::error::APK versionCode mismatch! Expected ${ANDROID_VERSION_CODE}, got: $BADGING"
+              exit 1
             fi
           fi
 
-          TARGET_APK=""
-          if [ "${HAS_RELEASE_KEY}" = "true" ] && [ -f "build-artifacts/apk/blood-qatabah-release.apk" ]; then
-            TARGET_APK="build-artifacts/apk/blood-qatabah-release.apk"
-          elif [ -f "build-artifacts/apk/blood-qatabah-debug.apk" ]; then
-            TARGET_APK="build-artifacts/apk/blood-qatabah-debug.apk"
-          fi
-
-          if [ -n "$TARGET_APK" ] && [ -f "$TARGET_APK" ]; then
-            APK_SHA256=$(sha256sum "$TARGET_APK" | awk '{print $1}')
-            APK_SIZE=$(stat -c%s "$TARGET_APK")
-          else
-            APK_SHA256="unknown"
-            APK_SIZE=0
-          fi
-
-          RAW_VC=$(printf '%s' "${ANDROID_VERSION_CODE:-}" | tr -d '[:space:]')
-          if [[ "$RAW_VC" =~ ^[0-9]+$ ]] && [ "$RAW_VC" -gt 0 ]; then
-            VERSION_CODE="$RAW_VC"
-          else
-            VERSION_CODE="1"
-          fi
-          RAW_VN=$(printf '%s' "${ANDROID_VERSION_NAME:-}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-          VERSION_NAME="${RAW_VN:-1.0}"
+          cp "$RELEASE_APK" build-artifacts/apk/blood-qatabah-release.apk
+          APK_SHA256=$(sha256sum build-artifacts/apk/blood-qatabah-release.apk | awk '{print $1}')
+          APK_SIZE=$(stat -c%s build-artifacts/apk/blood-qatabah-release.apk)
 
           cat << EOF > build-artifacts/apk/update-manifest.json
           {
             "packageName": "org.alnasr.bloodqatabah",
-            "versionCode": ${VERSION_CODE},
-            "versionName": "${VERSION_NAME}",
+            "versionCode": ${ANDROID_VERSION_CODE},
+            "versionName": "${ANDROID_VERSION_NAME}",
             "sha256": "${APK_SHA256}",
-            "signingMode": "${SIGNING_MODE:-unknown}",
-            "signingCertSha256": "${APK_CERT_SHA256:-unknown}",
+            "signingMode": "release",
+            "releaseSigned": true,
+            "signingCertSha256": "${APK_CERT_SHA256}",
             "fileSize": ${APK_SIZE},
             "minSdkVersion": 24,
             "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           EOF
 
-          echo "=========================================="
-          echo "Verified Deliverables (In-Place Update Ready):"
-          echo "Package Name      : org.alnasr.bloodqatabah"
-          echo "Version Code      : ${VERSION_CODE}"
-          echo "Version Name      : ${VERSION_NAME}"
-          echo "Signing Mode      : ${SIGNING_MODE:-unknown}"
-          echo "Cert SHA-256      : ${APK_CERT_SHA256:-unknown}"
-          echo "APK SHA-256       : ${APK_SHA256}"
-          echo "APK Size          : ${APK_SIZE} bytes"
-          [ -f "build-artifacts/apk/blood-qatabah-release.apk" ] && ls -lh build-artifacts/apk/blood-qatabah-release.apk || true
-          [ -f "build-artifacts/apk/blood-qatabah-debug.apk" ] && ls -lh build-artifacts/apk/blood-qatabah-debug.apk || true
-          [ -f "build-artifacts/aab/blood-qatabah-release.aab" ] && ls -lh build-artifacts/aab/blood-qatabah-release.aab || true
-          echo "=========================================="
+          {
+            echo "## Android Release Build Verified"
+            echo "- **Package Name**: \`org.alnasr.bloodqatabah\`"
+            echo "- **Version**: \`${ANDROID_VERSION_NAME}\` (\`versionCode=${ANDROID_VERSION_CODE}\`)"
+            echo "- **Signing Mode**: \`release\`"
+            echo "- **Certificate SHA-256**: \`${APK_CERT_SHA256}\`"
+            echo "- **APK SHA-256**: \`${APK_SHA256}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage Debug-Only Verification Build (Not Signed for Release Updates)
+        if: env.HAS_RELEASE_KEY != 'true'
+        run: |
+          rm -rf build-artifacts
+          mkdir -p build-artifacts/debug
+          DEBUG_APK=$(find android/app/build/outputs/apk/debug -name "*.apk" -type f | head -n 1)
+          if [ -z "$DEBUG_APK" ] || [ ! -s "$DEBUG_APK" ]; then
+            echo "::error::Debug APK was NOT generated!"
+            exit 1
+          fi
+          cp "$DEBUG_APK" build-artifacts/debug/blood-qatabah-debug.apk
+          {
+            echo "## Debug Verification Build Only (Release Skipped)"
+            echo "- **Status**: Release APK & AAB were **NOT** built because GitHub Secrets are missing:${MISSING_RELEASE_SECRETS}"
+            echo "- **Warning**: The generated \`blood-qatabah-debug.apk\` is signed with an ephemeral debug key and **cannot** update existing production installs."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Purge Previous Artifacts Before Upload
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: env.HAS_RELEASE_KEY == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: actions/github-script@v7
         with:
           script: |
@@ -400,7 +475,8 @@ jobs:
               core.warning(`Pre-upload artifact purge notice: ${err.message}`);
             }
 
-      - name: Upload Android APK Artifact (Directly Installable)
+      - name: Upload Signed Release APK Artifact
+        if: env.HAS_RELEASE_KEY == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Android-APK
@@ -410,12 +486,24 @@ jobs:
           compression-level: 9
           overwrite: true
 
-      - name: Upload Android AAB Artifact (Google Play Bundle)
+      - name: Upload Signed Release AAB Artifact (Google Play Bundle)
+        if: env.HAS_RELEASE_KEY == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Android-AAB
           path: build-artifacts/aab/
-          if-no-files-found: warn
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 9
+          overwrite: true
+
+      - name: Upload Debug-Only APK Artifact (Not for Production Updates)
+        if: env.HAS_RELEASE_KEY != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-Debug-APK-Not-For-Update
+          path: build-artifacts/debug/
+          if-no-files-found: error
           retention-days: 1
           compression-level: 9
           overwrite: true
