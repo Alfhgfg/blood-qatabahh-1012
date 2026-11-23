@@ -197,15 +197,66 @@ jobs:
             exit 1
           fi
 
-      - name: Verify Google Services Config & Sync Capacitor
+      - name: Restore & Verify Google Services Config & Sync Capacitor
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          GOOGLE_SERVICES_BASE64: ${{ secrets.GOOGLE_SERVICES_BASE64 }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
+          mkdir -p android/app
+
+          if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "Restoring android/app/google-services.json from GOOGLE_SERVICES_JSON_BASE64 secret..."
+            printf '%s' "$GOOGLE_SERVICES_JSON_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/google-services.json
+          elif [ -n "$GOOGLE_SERVICES_BASE64" ]; then
+            echo "Restoring android/app/google-services.json from GOOGLE_SERVICES_BASE64 secret..."
+            printf '%s' "$GOOGLE_SERVICES_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/google-services.json
+          elif [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "Restoring android/app/google-services.json from GOOGLE_SERVICES_JSON secret..."
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          elif [ -s "android/app/google-services.json" ]; then
+            echo "Using repository android/app/google-services.json..."
+          elif [ -s "public/assets/aistudio/google-services__14__37dea63f.json" ]; then
+            echo "Copying verified repository asset to android/app/google-services.json..."
+            cp public/assets/aistudio/google-services__14__37dea63f.json android/app/google-services.json
+          fi
+
           if [ ! -s "android/app/google-services.json" ]; then
-            echo "::error::android/app/google-services.json is missing or empty!"
+            echo "::error::android/app/google-services.json is missing or empty! Commit android/app/google-services.json or set GOOGLE_SERVICES_JSON_BASE64 in GitHub Secrets."
             exit 1
           fi
-          grep -q '"project_id": "avian-gate-pbcxw"' android/app/google-services.json || { echo "::error::google-services.json project_id mismatch!"; exit 1; }
-          grep -q '"package_name": "org.alnasr.bloodqatabah"' android/app/google-services.json || { echo "::error::google-services.json package_name mismatch!"; exit 1; }
-          grep -q '"mobilesdk_app_id": "1:589909705354:android:33008ef0e0b84fd4d0e373"' android/app/google-services.json || { echo "::error::google-services.json mobilesdk_app_id mismatch!"; exit 1; }
+
+          node -e '
+            const fs = require("fs");
+            const gs = JSON.parse(fs.readFileSync("android/app/google-services.json", "utf8"));
+            const projectId = gs?.project_info?.project_id;
+            if (projectId !== "avian-gate-pbcxw") {
+              console.error("::error::google-services.json project_id mismatch! Expected avian-gate-pbcxw, got: " + projectId);
+              process.exit(1);
+            }
+            const clients = Array.isArray(gs?.client) ? gs.client : [];
+            const matchingClient = clients.find(
+              (c) => c?.client_info?.android_client_info?.package_name === "org.alnasr.bloodqatabah"
+            );
+            if (!matchingClient) {
+              console.error("::error::google-services.json has no client with package_name org.alnasr.bloodqatabah!");
+              process.exit(1);
+            }
+            const mobileAppId = matchingClient?.client_info?.mobilesdk_app_id;
+            const apiKey = matchingClient?.api_key?.[0]?.current_key;
+            if (!mobileAppId || !apiKey) {
+              console.error("::error::google-services.json client is missing mobilesdk_app_id or api_key!");
+              process.exit(1);
+            }
+            if (fs.existsSync("firebase-applet-config.json")) {
+              const webCfg = JSON.parse(fs.readFileSync("firebase-applet-config.json", "utf8"));
+              if (webCfg?.projectId && webCfg.projectId !== projectId) {
+                console.error("::error::Firebase projectId mismatch between firebase-applet-config.json (" + webCfg.projectId + ") and google-services.json (" + projectId + ")!");
+                process.exit(1);
+              }
+            }
+            console.log("Verified google-services.json:", { projectId, packageName: "org.alnasr.bloodqatabah", mobileAppId });
+          '
 
           npx cap sync android
 

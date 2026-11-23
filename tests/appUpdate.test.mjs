@@ -420,4 +420,8 @@ test('Permanent In-Place Update policy locks applicationId, release signing, and
   assert.match(buildGradle, /apply plugin:\s*'com\.google\.gms\.google-services'/);
   assert.match(buildGradle, /com\.google\.firebase:firebase-bom:33\.7\.0/);
   assert.match(mainApplicationJava, /1:589909705354:android:33008ef0e0b84fd4d0e373/);
+  assert.match(workflowYml, /GOOGLE_SERVICES_JSON_BASE64/);
+  assert.match(workflowYml, /GOOGLE_SERVICES_BASE64/);
+  assert.match(workflowYml, /base64 --decode > android\/app\/google-services\.json/);
+  assert.match(workflowYml, /npx cap sync android/);
 });
