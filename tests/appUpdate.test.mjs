@@ -300,6 +300,57 @@ test('Live server endpoints authenticate admin, validate payloads, persist confi
     assert.equal(latestAfter.config.enabled, true);
     assert.equal(latestAfter.config.android.versionName, '1.1.0');
 
+    // 7. Authenticated POST blocks versionCode downgrade and conflicting duplicate versionCode
+    const downgradeRes = await fetch(`${baseUrl}/api/app-update/config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${loginJson.adminSessionToken}`
+      },
+      body: JSON.stringify({
+        enabled: true,
+        android: {
+          versionCode: 1,
+          versionName: '1.0.0',
+          packageName: EXPECTED_ANDROID_PACKAGE_NAME,
+          downloadUrl: VALID_HTTPS_URL,
+          sha256: VALID_SHA256,
+          fileSize: 14500000,
+          minSdkVersion: 24,
+          minUpgradeFromVersionCode: 1
+        },
+        web: { versionCode: 2, versionName: '1.1.0' }
+      })
+    });
+    assert.equal(downgradeRes.status, 400);
+    const downgradeJson = await downgradeRes.json();
+    assert.equal(downgradeJson.code, 'VERSION_DOWNGRADE_FORBIDDEN');
+
+    const duplicateRes = await fetch(`${baseUrl}/api/app-update/config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${loginJson.adminSessionToken}`
+      },
+      body: JSON.stringify({
+        enabled: true,
+        android: {
+          versionCode: 2,
+          versionName: '1.1.0',
+          packageName: EXPECTED_ANDROID_PACKAGE_NAME,
+          downloadUrl: VALID_HTTPS_URL,
+          sha256: 'b'.repeat(64),
+          fileSize: 14500000,
+          minSdkVersion: 24,
+          minUpgradeFromVersionCode: 1
+        },
+        web: { versionCode: 2, versionName: '1.1.0' }
+      })
+    });
+    assert.equal(duplicateRes.status, 400);
+    const duplicateJson = await duplicateRes.json();
+    assert.equal(duplicateJson.code, 'DUPLICATE_VERSION_CODE');
+
     const donorsAfter = await (await fetch(`${baseUrl}/api/donors`)).json();
     assert.equal(donorsAfter.length, donorsBefore.length);
   } finally {
@@ -307,4 +358,46 @@ test('Live server endpoints authenticate admin, validate payloads, persist confi
     await new Promise((r) => setTimeout(r, 300));
     fs.writeFileSync(dbPath, originalDbBytes);
   }
+});
+
+test('Permanent In-Place Update policy locks applicationId, release signing, and monotonic versioning', () => {
+  const buildGradle = fs.readFileSync(path.resolve('android/app/build.gradle'), 'utf8');
+  const capTs = fs.readFileSync(path.resolve('capacitor.config.ts'), 'utf8');
+  const capJson = JSON.parse(fs.readFileSync(path.resolve('capacitor.config.json'), 'utf8'));
+  const androidCapJson = JSON.parse(
+    fs.readFileSync(path.resolve('android/app/src/main/assets/capacitor.config.json'), 'utf8')
+  );
+  const stringsXml = fs.readFileSync(path.resolve('android/app/src/main/res/values/strings.xml'), 'utf8');
+  const workflowYml = fs.readFileSync(path.resolve('.github/workflows/build-android.yml'), 'utf8');
+  const appUpdatePlugin = fs.readFileSync(
+    path.resolve('android/app/src/main/java/org/alnasr/bloodqatabah/AppUpdatePlugin.java'),
+    'utf8'
+  );
+
+  // 1. Fixed application identity
+  assert.match(buildGradle, /applicationId\s+"org\.alnasr\.bloodqatabah"/);
+  assert.match(buildGradle, /namespace\s*=\s*"org\.alnasr\.bloodqatabah"/);
+  assert.match(capTs, /appId:\s*'org\.alnasr\.bloodqatabah'/);
+  assert.equal(capJson.appId, 'org.alnasr.bloodqatabah');
+  assert.equal(androidCapJson.appId, 'org.alnasr.bloodqatabah');
+  assert.match(stringsXml, /<string name="package_name">org\.alnasr\.bloodqatabah<\/string>/);
+
+  // 2. Strict release signing (zero debug fallback)
+  assert.equal(/signingConfigs\.debug/.test(buildGradle), false);
+  assert.equal(/debug\.keystore/.test(buildGradle), false);
+  assert.match(buildGradle, /gradle\.taskGraph\.whenReady/);
+  assert.match(buildGradle, /Missing release signing keystore/);
+
+  // 3. Strict CI workflow verification & app-release.apk artifact
+  assert.equal(/assembleDebug/.test(workflowYml), false);
+  assert.equal(/debug\.keystore/.test(workflowYml), false);
+  assert.match(workflowYml, /EXPECTED_RELEASE_CERT_SHA256/);
+  assert.match(workflowYml, /apksigner.*verify --verbose --print-certs/i);
+  assert.match(workflowYml, /keytool -printcert -jarfile/);
+  assert.match(workflowYml, /app-release\.apk/);
+
+  // 4. Native plugin verifies signing digest match & launches official installer in-place
+  assert.match(appUpdatePlugin, /SIGNATURE_MISMATCH/);
+  assert.match(appUpdatePlugin, /Intent\.ACTION_VIEW/);
+  assert.match(appUpdatePlugin, /application\/vnd\.android\.package-archive/);
 });

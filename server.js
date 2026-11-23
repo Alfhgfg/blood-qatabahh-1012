@@ -3520,6 +3520,31 @@ app.post("/api/app-update/config", requireAdminAuth, async (req, res) => {
       });
     }
 
+    const currentConfig = db2.appUpdate;
+    if (currentConfig && currentConfig.enabled && validation.config.enabled && currentConfig.android) {
+      const currentVc = Number(currentConfig.android.versionCode || 0);
+      const nextVc = Number(validation.config.android.versionCode || 0);
+      if (nextVc < currentVc) {
+        return res.status(400).json({
+          success: false,
+          code: "VERSION_DOWNGRADE_FORBIDDEN",
+          error: `لا يمكن تخفيض رقم الإصدار (${nextVc}) عن الإصدار المنشور حالياً (${currentVc}) لضمان التحديث المباشر.`
+        });
+      }
+      if (
+        nextVc === currentVc &&
+        currentConfig.android.sha256 &&
+        validation.config.android.sha256 &&
+        currentConfig.android.sha256.toLowerCase() !== validation.config.android.sha256.toLowerCase()
+      ) {
+        return res.status(400).json({
+          success: false,
+          code: "DUPLICATE_VERSION_CODE",
+          error: `رقم الإصدار (${nextVc}) مستخدم مسبقاً لحزمة APK أخرى. يجب زيادة versionCode لكل إصدار جديد.`
+        });
+      }
+    }
+
     db2.appUpdate = validation.config;
     saveDatabase();
 

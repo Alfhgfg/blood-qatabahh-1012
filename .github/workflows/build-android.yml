@@ -241,6 +241,21 @@ jobs:
 
           npx cap sync android
 
+      - name: Verify Fixed Package Identity & Release Signing Policy
+        run: |
+          EXPECTED_PKG="org.alnasr.bloodqatabah"
+          grep -q "applicationId \"$EXPECTED_PKG\"" android/app/build.gradle || { echo "::error::android/app/build.gradle applicationId mismatch"; exit 1; }
+          grep -q "namespace = \"$EXPECTED_PKG\"" android/app/build.gradle || { echo "::error::android/app/build.gradle namespace mismatch"; exit 1; }
+          grep -q "\"appId\": \"$EXPECTED_PKG\"" capacitor.config.json || { echo "::error::capacitor.config.json appId mismatch"; exit 1; }
+          grep -q "appId: '$EXPECTED_PKG'" capacitor.config.ts || { echo "::error::capacitor.config.ts appId mismatch"; exit 1; }
+          grep -q "\"appId\": \"$EXPECTED_PKG\"" android/app/src/main/assets/capacitor.config.json || { echo "::error::android capacitor.config.json appId mismatch"; exit 1; }
+          grep -q "<string name=\"package_name\">$EXPECTED_PKG</string>" android/app/src/main/res/values/strings.xml || { echo "::error::strings.xml package_name mismatch"; exit 1; }
+          if grep -qE "signingConfigs\.debug|debug\.keystore" android/app/build.gradle; then
+            echo "::error::Forbidden debug signing fallback detected in android/app/build.gradle!"
+            exit 1
+          fi
+          echo "Verified fixed package identity ($EXPECTED_PKG) and strict release signing policy."
+
       - name: Clean Stale Android Build Outputs & Verify Gradlew
         working-directory: android
         run: |
@@ -388,13 +403,14 @@ jobs:
             fi
           fi
 
-          cp "$RELEASE_APK" build-artifacts/apk/blood-qatabah-release.apk
-          APK_SHA256=$(sha256sum build-artifacts/apk/blood-qatabah-release.apk | awk '{print $1}')
-          APK_SIZE=$(stat -c%s build-artifacts/apk/blood-qatabah-release.apk)
+          cp "$RELEASE_APK" build-artifacts/apk/app-release.apk
+          APK_SHA256=$(sha256sum build-artifacts/apk/app-release.apk | awk '{print $1}')
+          APK_SIZE=$(stat -c%s build-artifacts/apk/app-release.apk)
 
           cat << EOF > build-artifacts/apk/update-manifest.json
           {
             "packageName": "org.alnasr.bloodqatabah",
+            "apkFileName": "app-release.apk",
             "versionCode": ${ANDROID_VERSION_CODE},
             "versionName": "${ANDROID_VERSION_NAME}",
             "sha256": "${APK_SHA256}",
@@ -410,10 +426,12 @@ jobs:
           {
             echo "## Android Release Build Verified"
             echo "- **Package Name**: \`org.alnasr.bloodqatabah\`"
+            echo "- **APK File**: \`app-release.apk\`"
             echo "- **Version**: \`${ANDROID_VERSION_NAME}\` (\`versionCode=${ANDROID_VERSION_CODE}\`)"
             echo "- **Signing Mode**: \`release\` (Strict Pinned Keystore)"
             echo "- **Pinned Certificate SHA-256**: \`${APK_CERT_SHA256}\`"
             echo "- **APK SHA-256**: \`${APK_SHA256}\`"
+            echo "- **In-Place Update Test**: \`adb install -r app-release.apk\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Purge Previous Artifacts Before Upload

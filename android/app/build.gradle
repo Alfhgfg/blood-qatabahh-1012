@@ -25,6 +25,16 @@ android {
 
         def envVersionCode = System.getenv("ANDROID_VERSION_CODE")
         def envVersionName = System.getenv("ANDROID_VERSION_NAME")
+        if (envVersionCode != null && !envVersionCode.trim().isEmpty()) {
+            if (!envVersionCode.trim().isInteger() || envVersionCode.trim().toInteger() < 1) {
+                throw new GradleException("Invalid ANDROID_VERSION_CODE '${envVersionCode}': must be a positive integer.")
+            }
+            if (envVersionCode.trim().toInteger() < baseVersionCode) {
+                throw new GradleException(
+                    "ANDROID_VERSION_CODE (${envVersionCode.trim()}) cannot be lower than VERSION_CODE (${baseVersionCode}) in android/version.properties."
+                )
+            }
+        }
         def parsedVersionCode = (envVersionCode != null && envVersionCode.trim().isInteger()) ? envVersionCode.trim().toInteger() : baseVersionCode
         def resolvedVersionCode = Math.max(baseVersionCode, parsedVersionCode > 0 ? parsedVersionCode : baseVersionCode)
         def resolvedVersionName = (envVersionName != null && !envVersionName.trim().isEmpty()) ? envVersionName.trim() : baseVersionName
