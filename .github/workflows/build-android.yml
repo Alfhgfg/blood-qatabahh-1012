@@ -197,47 +197,15 @@ jobs:
             exit 1
           fi
 
-      - name: Configure Google Services & Sync Capacitor
+      - name: Verify Google Services Config & Sync Capacitor
         run: |
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo "Creating android/app/google-services.json fallback..."
-            cat << 'EOF' > android/app/google-services.json
-          {
-            "project_info": {
-              "project_number": "589909705354",
-              "project_id": "avian-gate-pbcxw",
-              "storage_bucket": "avian-gate-pbcxw.firebasestorage.app"
-            },
-            "client": [
-              {
-                "client_info": {
-                  "mobilesdk_app_id": "1:589909705354:android:3d9e372d5712e34ed0e373",
-                  "android_client_info": {
-                    "package_name": "org.alnasr.bloodqatabah"
-                  }
-                },
-                "oauth_client": [
-                  {
-                    "client_id": "589909705354-kupi11ci2s11photd5srrul4mv9rhcaf.apps.googleusercontent.com",
-                    "client_type": 3
-                  }
-                ],
-                "api_key": [
-                  {
-                    "current_key": "AIzaSyCLtHs6SO9brCt3hMpq5di6XQdeO02i4rQ"
-                  }
-                ],
-                "services": {
-                  "appinvite_service": {
-                    "other_platform_oauth_client": []
-                  }
-                }
-              }
-            ],
-            "configuration_version": "1"
-          }
-          EOF
+          if [ ! -s "android/app/google-services.json" ]; then
+            echo "::error::android/app/google-services.json is missing or empty!"
+            exit 1
           fi
+          grep -q '"project_id": "avian-gate-pbcxw"' android/app/google-services.json || { echo "::error::google-services.json project_id mismatch!"; exit 1; }
+          grep -q '"package_name": "org.alnasr.bloodqatabah"' android/app/google-services.json || { echo "::error::google-services.json package_name mismatch!"; exit 1; }
+          grep -q '"mobilesdk_app_id": "1:589909705354:android:33008ef0e0b84fd4d0e373"' android/app/google-services.json || { echo "::error::google-services.json mobilesdk_app_id mismatch!"; exit 1; }
 
           npx cap sync android
 

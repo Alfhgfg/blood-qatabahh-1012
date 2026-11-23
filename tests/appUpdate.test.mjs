@@ -400,4 +400,24 @@ test('Permanent In-Place Update policy locks applicationId, release signing, and
   assert.match(appUpdatePlugin, /SIGNATURE_MISMATCH/);
   assert.match(appUpdatePlugin, /Intent\.ACTION_VIEW/);
   assert.match(appUpdatePlugin, /application\/vnd\.android\.package-archive/);
+
+  // 5. Android google-services.json and Gradle plugin point to avian-gate-pbcxw & org.alnasr.bloodqatabah
+  const googleServicesRaw = fs.readFileSync(path.resolve('android/app/google-services.json'), 'utf8');
+  const googleServicesJson = JSON.parse(googleServicesRaw);
+  const firebaseAppletConfig = JSON.parse(fs.readFileSync(path.resolve('firebase-applet-config.json'), 'utf8'));
+  const rootBuildGradle = fs.readFileSync(path.resolve('android/build.gradle'), 'utf8');
+  const mainApplicationJava = fs.readFileSync(
+    path.resolve('android/app/src/main/java/org/alnasr/bloodqatabah/MainApplication.java'),
+    'utf8'
+  );
+
+  assert.equal(googleServicesJson.project_info.project_id, 'avian-gate-pbcxw');
+  assert.equal(googleServicesJson.project_info.project_id, firebaseAppletConfig.projectId);
+  assert.equal(googleServicesJson.project_info.storage_bucket, firebaseAppletConfig.storageBucket);
+  assert.equal(googleServicesJson.client[0].client_info.android_client_info.package_name, EXPECTED_ANDROID_PACKAGE_NAME);
+  assert.equal(googleServicesJson.client[0].client_info.mobilesdk_app_id, '1:589909705354:android:33008ef0e0b84fd4d0e373');
+  assert.match(rootBuildGradle, /com\.google\.gms:google-services:4\.4\.4/);
+  assert.match(buildGradle, /apply plugin:\s*'com\.google\.gms\.google-services'/);
+  assert.match(buildGradle, /com\.google\.firebase:firebase-bom:33\.7\.0/);
+  assert.match(mainApplicationJava, /1:589909705354:android:33008ef0e0b84fd4d0e373/);
 });

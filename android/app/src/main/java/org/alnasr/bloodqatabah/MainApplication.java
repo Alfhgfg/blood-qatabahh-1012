@@ -99,8 +99,8 @@ public class MainApplication extends Application {
             if (FirebaseApp.getApps(appContext).isEmpty()) {
                 Log.i(TAG, "Initializing default FirebaseApp using verified project options...");
                 FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setApplicationId("1:589909705354:android:3d9e372d5712e34ed0e373")
-                    .setApiKey("AIzaSyCLtHs6SO9brCt3hMpq5di6XQdeO02i4rQ")
+                    .setApplicationId("1:589909705354:android:33008ef0e0b84fd4d0e373")
+                    .setApiKey("AIzaSyC2kUM_IxD-iN6HRK0BdTKyaU4mdRsO_iA")
                     .setProjectId("avian-gate-pbcxw")
                     .setGcmSenderId("589909705354")
                     .setStorageBucket("avian-gate-pbcxw.firebasestorage.app")

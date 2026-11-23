@@ -1352,16 +1352,16 @@
       "minUpgradeFromVersionCode": 1,
       "mandatory": false,
       "releaseNotes": "اختبار تحديث مباشر",
-      "releasedAt": "2026-11-23T12:23:17.219Z"
+      "releasedAt": "2026-11-23T12:42:30.455Z"
     },
     "web": {
       "versionCode": 2,
       "versionName": "1.1.0",
       "mandatory": false,
       "releaseNotes": "تحديث ويب تجريبي",
-      "releasedAt": "2026-11-23T12:23:17.219Z"
+      "releasedAt": "2026-11-23T12:42:30.455Z"
     },
-    "updatedAt": "2026-11-23T12:23:17.219Z",
+    "updatedAt": "2026-11-23T12:42:30.455Z",
     "updatedBy": "admin"
   },
   "users": [
@@ -1375,7 +1375,7 @@
       "passwordHash": "0ffa41d39b4d4e70e376d592843d41e94a71d1593aa961f31dbc278ecbc56992",
       "password": "alsh486iby-2026",
       "lastLoginAt": "2026-11-02T18:54:27.715Z",
-      "updatedAt": "2026-11-25T12:20:55.572Z"
+      "updatedAt": "2026-11-25T12:40:24.980Z"
     },
     {
       "id": "user-default",
