@@ -248,16 +248,7 @@ jobs:
           rm -rf app/build/outputs ../build-artifacts
           ./gradlew --version
 
-      - name: Restore Persistent Debug Keystore Cache (Fallback When Release Secrets Unset)
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: android-debug-keystore-persistent-v1
-          restore-keys: |
-            android-debug-keystore-persistent-
-
-      - name: Setup Release Keystore from Secrets
+      - name: Setup Release Keystore from Secrets (Strict Release Enforcement)
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -265,52 +256,32 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           EFFECTIVE_KEY_PASSWORD="${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
-          if [ -n "$KEYSTORE_BASE64" ] || [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEY_ALIAS" ]; then
-            if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$EFFECTIVE_KEY_PASSWORD" ]; then
-              echo "::error::Partial signing secrets detected! Provide KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS (and KEY_PASSWORD if different) so the APK is never silently signed with a mismatched key."
-              exit 1
-            fi
-
-            printf '%s' "$KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/release.keystore
-            if [ ! -s android/app/release.keystore ]; then
-              echo "::error::Decoded release.keystore is empty or invalid base64!"
-              rm -f android/app/release.keystore
-              exit 1
-            fi
-
-            if ! keytool -list -keystore android/app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
-              echo "::error::Failed to verify release.keystore with provided KEYSTORE_PASSWORD and KEY_ALIAS!"
-              rm -f android/app/release.keystore
-              exit 1
-            fi
-
-            CERT_SHA256=$(keytool -list -v -keystore android/app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" 2>/dev/null | grep -i "SHA256:" | head -n 1 | sed 's/.*SHA256:[[:space:]]*//')
-            echo "ANDROID_KEYSTORE_FILE=release.keystore" >> "$GITHUB_ENV"
-            echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
-            echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
-            echo "ANDROID_KEY_PASSWORD=$EFFECTIVE_KEY_PASSWORD" >> "$GITHUB_ENV"
-            echo "SIGNING_MODE=release" >> "$GITHUB_ENV"
-            echo "SIGNING_CERT_SHA256=${CERT_SHA256}" >> "$GITHUB_ENV"
-            echo "Production release keystore verified successfully (Cert SHA-256: ${CERT_SHA256})."
-          else
-            mkdir -p ~/.android
-            if [ ! -s ~/.android/debug.keystore ]; then
-              echo "Generating persistent debug.keystore for CI fallback signing..."
-              keytool -genkeypair -v \
-                -keystore ~/.android/debug.keystore \
-                -storepass android \
-                -alias androiddebugkey \
-                -keypass android \
-                -keyalg RSA \
-                -keysize 2048 \
-                -validity 10000 \
-                -dname "CN=Android Debug,O=Android,C=US" >/dev/null 2>&1
-            fi
-            CERT_SHA256=$(keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey 2>/dev/null | grep -i "SHA256:" | head -n 1 | sed 's/.*SHA256:[[:space:]]*//')
-            echo "SIGNING_MODE=debug-cached" >> "$GITHUB_ENV"
-            echo "SIGNING_CERT_SHA256=${CERT_SHA256}" >> "$GITHUB_ENV"
-            echo "::warning::Release keystore secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS) are not configured. Using persistent cached debug keystore (Cert SHA-256: ${CERT_SHA256}). To update previously published production installs without uninstalling, configure your original release keystore in GitHub Secrets."
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$EFFECTIVE_KEY_PASSWORD" ]; then
+            echo "::error::Release keystore secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS) are missing or incomplete! To prevent INSTALL_FAILED_UPDATE_INCOMPATIBLE, you must configure the exact original release keystore in GitHub Secrets. Building with debug keystore is strictly prohibited for production updates."
+            exit 1
           fi
+
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/release.keystore
+          if [ ! -s android/app/release.keystore ]; then
+            echo "::error::Decoded release.keystore is empty or invalid base64!"
+            rm -f android/app/release.keystore
+            exit 1
+          fi
+
+          if ! keytool -list -keystore android/app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
+            echo "::error::Failed to verify release.keystore with provided KEYSTORE_PASSWORD and KEY_ALIAS!"
+            rm -f android/app/release.keystore
+            exit 1
+          fi
+
+          CERT_SHA256=$(keytool -list -v -keystore android/app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" 2>/dev/null | grep -i "SHA256:" | head -n 1 | sed 's/.*SHA256:[[:space:]]*//')
+          echo "ANDROID_KEYSTORE_FILE=release.keystore" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$EFFECTIVE_KEY_PASSWORD" >> "$GITHUB_ENV"
+          echo "SIGNING_MODE=release" >> "$GITHUB_ENV"
+          echo "SIGNING_CERT_SHA256=${CERT_SHA256}" >> "$GITHUB_ENV"
+          echo "Production release keystore verified successfully (Cert SHA-256: ${CERT_SHA256})."
 
       - name: Build Android AAB & Installable APK
         working-directory: android

@@ -495,6 +495,12 @@ export default function App() {
     const localD = storageService.getDonors();
     if (localD.length > 0) setDonors(localD);
     setRequests(storageService.getRequests());
+    firestoreService.fetchRequests().then((freshRequests) => {
+      if (Array.isArray(freshRequests) && freshRequests.length > 0) {
+        setRequests(freshRequests);
+        storageService.setLocalRequests(freshRequests);
+      }
+    }).catch(() => {});
     setDistricts(storageService.getDistricts());
     setNotifications(storageService.getNotifications());
     const localAds = storageService.getLocalHospitalAds();

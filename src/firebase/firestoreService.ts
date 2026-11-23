@@ -310,17 +310,21 @@ export const firestoreService = {
   subscribeRequests(callback: (requests: BloodRequest[]) => void): () => void {
     const path = 'requests';
     this.fetchRequests().then((fresh) => {
-      if (Array.isArray(fresh) && fresh.length > 0) callback(fresh);
+      if (Array.isArray(fresh)) callback(fresh);
     }).catch(() => {});
 
     try {
       return onSnapshot(
         collection(db, path),
+        { includeMetadataChanges: true },
         (snap) => {
+          if (snap.metadata.fromCache) {
+            return;
+          }
           const reqs: BloodRequest[] = [];
           snap.forEach((d) => {
-            const data = d.data() as BloodRequest;
-            if (data && data.patientName && data.bloodType) {
+            const data = { id: d.id, ...d.data() } as BloodRequest;
+            if (data) {
               reqs.push(data);
             }
           });
@@ -347,7 +351,15 @@ export const firestoreService = {
       const snap = await getDocs(collection(db, path));
       const requests: BloodRequest[] = [];
       snap.forEach((d) => {
-        requests.push(d.data() as BloodRequest);
+        const data = { id: d.id, ...d.data() } as BloodRequest;
+        if (data) {
+          requests.push(data);
+        }
+      });
+      requests.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
       });
       return requests;
     } catch (err) {

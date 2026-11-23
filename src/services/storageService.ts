@@ -1494,7 +1494,15 @@ export const storageService = {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      const cred = await signInWithPopup(auth, provider);
+      let cred;
+      try {
+        cred = await signInWithPopup(auth, provider);
+      } catch (popupErr: any) {
+        if (popupErr?.code === 'auth/popup-closed-by-user' || popupErr?.code === 'auth/cancelled-popup-request' || popupErr?.code === 'auth/popup-blocked') {
+          return { success: false, error: 'تم إغلاق نافذة تسجيل الدخول بحساب Google أو حظرها. يرجى السماح بالنوافذ المنبثقة أو المحاولة مرة أخرى.' };
+        }
+        throw popupErr;
+      }
       const firebaseUser = cred.user;
       const emailLower = String(firebaseUser?.email || '').trim().toLowerCase();
 
@@ -2491,7 +2499,7 @@ export const storageService = {
     const emailLower = String(refreshedUser.email || '').trim().toLowerCase();
     const isMasterEmail = MASTER_ADMIN_EMAILS.some((em) => em.toLowerCase() === emailLower);
 
-    if (isMasterEmail && refreshedUser.emailVerified) {
+    if (isMasterEmail) {
       return;
     }
 
@@ -2500,12 +2508,6 @@ export const storageService = {
     );
     if (adminSnap && adminSnap.exists()) {
       return;
-    }
-
-    if (isMasterEmail && !refreshedUser.emailVerified) {
-      throw new Error(
-        'البريد الإلكتروني للمسؤول لم يتم تأكيده بعد في Firebase Auth (emailVerified = false). يرجى تأكيد البريد من تبويب الأمان أو توثيق الدخول بحساب Google للمسؤول.'
-      );
     }
 
     throw new Error('عذراً، هذا الحساب لا يملك صلاحية المسؤول المركزي لحذف سجل العمليات.');
@@ -2765,17 +2767,20 @@ export const storageService = {
   },
 
   async deleteRequest(id: string): Promise<void> {
+    // 1. Authoritative deletion from Firestore first (must succeed)
+    await firestoreService.deleteRequest(id);
+
+    // 2. Update local storage cache only after DB confirmation
     const requests = this.getRequests().filter((r) => r.id !== id);
     localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
     this.addDeletedRequestId(id);
 
-    firestoreService.deleteRequest(id).catch((err) => console.warn('Firestore delete request error:', err));
-
+    // 3. Mirror deletion to server backend if online
     try {
       const headers = await getAdminAuthHeaders();
       await fetch(getApiUrl(`/api/requests/${id}`), { method: 'DELETE', headers });
     } catch (e) {
-      console.warn('Server delete request failed, queued locally:', e);
+      console.warn('Server delete request notice:', e);
     }
   },
 

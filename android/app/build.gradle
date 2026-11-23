@@ -74,15 +74,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-            if (resolvedKeystoreFile != null) {
-                signingConfig signingConfigs.release
-            } else {
-                // When release signing key is not provided in environment secrets,
-                // automatically fallback to signingConfigs.debug so the generated APK is signed
-                // and directly installable on Android devices without "INSTALL_PARSE_FAILED_NO_CERTIFICATES"
-                signingConfig signingConfigs.debug
-            }
+            signingConfig signingConfigs.release
         }
     }
     lint {
