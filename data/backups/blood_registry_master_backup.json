@@ -1161,6 +1161,25 @@
   ],
   "notifications": [
     {
+      "id": "notif-1795437998436",
+      "title": "طلب دم جديد 🩸",
+      "message": "مطلوب 2 وحدة فصيلة (O+) للمريض مريض اختبار مؤقت في مستشفى قعطبة العام.",
+      "time": "الآن",
+      "type": "urgent",
+      "read": false,
+      "linkPage": "requests",
+      "itemId": "req-1795437998436-327"
+    },
+    {
+      "id": "notif-1795437998417",
+      "title": "مستخدم جديد انضم للتطبيق 👤",
+      "message": "انضم المستخدم مستخدم اختبار التحقق (779123456) إلى تطبيق سجل المتبرعين.",
+      "time": "الآن",
+      "type": "system",
+      "read": false,
+      "linkPage": "admin"
+    },
+    {
       "id": "notif-1793848856877",
       "title": "🚨 تجربة نداء دم عاجل",
       "message": "مطلوب فصيلة O- في قعطبة",
@@ -1340,29 +1359,29 @@
   "hospitals": [],
   "doctors": [],
   "appUpdate": {
-    "enabled": true,
+    "enabled": false,
     "android": {
-      "versionCode": 2,
-      "versionName": "1.1.0",
+      "versionCode": 1,
+      "versionName": "1.0",
       "packageName": "org.alnasr.bloodqatabah",
-      "downloadUrl": "https://releases.example.org/blood-qatabah/app-v1.1.0.apk",
-      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "fileSize": 14500000,
+      "downloadUrl": "",
+      "sha256": "",
+      "fileSize": 0,
       "minSdkVersion": 24,
       "minUpgradeFromVersionCode": 1,
       "mandatory": false,
-      "releaseNotes": "اختبار تحديث مباشر",
-      "releasedAt": "2026-11-23T12:42:30.455Z"
+      "releaseNotes": "",
+      "releasedAt": "2026-10-01T00:00:00Z"
     },
     "web": {
-      "versionCode": 2,
-      "versionName": "1.1.0",
+      "versionCode": 1,
+      "versionName": "1.0",
       "mandatory": false,
-      "releaseNotes": "تحديث ويب تجريبي",
-      "releasedAt": "2026-11-23T12:42:30.455Z"
+      "releaseNotes": "",
+      "releasedAt": "2026-10-01T00:00:00Z"
     },
-    "updatedAt": "2026-11-23T12:42:30.455Z",
-    "updatedBy": "admin"
+    "updatedAt": "2026-10-01T00:00:00Z",
+    "updatedBy": "system"
   },
   "users": [
     {
@@ -1661,6 +1680,16 @@
       "role": "user",
       "username": "rishanrishan",
       "lastLoginAt": "2026-11-02T22:18:46.021Z"
+    },
+    {
+      "id": "user-1795437998417-522",
+      "username": "verify_user_1795437998396",
+      "password": "TestUser1234",
+      "fullName": "مستخدم اختبار التحقق",
+      "phone": "779123456",
+      "role": "user",
+      "createdAt": "2026-11-23T12:46:38.417Z",
+      "lastLoginAt": "2026-11-23T12:46:38.425Z"
     }
   ]
 }
