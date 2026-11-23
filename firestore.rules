@@ -1,0 +1,293 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global helper primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedCentralAdminEmail() {
+      return isSignedIn() &&
+        'email' in request.auth.token &&
+        request.auth.token.email is string &&
+        request.auth.token.email_verified == true &&
+        request.auth.token.email.lower() in [
+          'abdulrahmanalshaiby2028@gmail.com',
+          'abdulrahmanalshaiby2070@gmail.com',
+          'an736160403an@gmail.com'
+        ];
+    }
+
+    function isCentralAdmin() {
+      return isSignedIn() && (
+        isVerifiedCentralAdminEmail() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isAdmin() {
+      return isCentralAdmin();
+    }
+
+    // Entity validation helpers
+    function isValidDonor(data) {
+      return data.keys().hasAll(['id', 'fullName', 'phone', 'bloodType', 'district', 'area', 'isAvailable', 'createdAt']) &&
+        data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 150 &&
+        data.phone is string && data.phone.size() >= 9 && data.phone.size() <= 25 &&
+        data.bloodType in ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] &&
+        data.district is string && data.district.size() <= 100 &&
+        data.area is string && data.area.size() <= 100 &&
+        data.isAvailable is bool &&
+        data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidBloodRequest(data) {
+      return data.keys().hasAll(['id', 'patientName', 'bloodType', 'unitsNeeded', 'hospital', 'district', 'urgency', 'status', 'contactPhone', 'createdAt']) &&
+        data.patientName is string && data.patientName.size() >= 2 && data.patientName.size() <= 150 &&
+        data.bloodType in ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] &&
+        data.unitsNeeded is number && data.unitsNeeded > 0 && data.unitsNeeded <= 50 &&
+        data.hospital is string && data.hospital.size() <= 150 &&
+        data.district is string && data.district.size() <= 100 &&
+        data.urgency in ['critical', 'urgent', 'moderate', 'normal'] &&
+        data.status in ['new', 'in_progress', 'open', 'fulfilled', 'cancelled'] &&
+        data.contactPhone is string && data.contactPhone.size() >= 7 && data.contactPhone.size() <= 25 &&
+        data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidDistrict(data) {
+      return data.keys().hasAll(['id', 'name', 'areas']) &&
+        data.name is string && data.name.size() <= 100 &&
+        data.areas is list && data.areas.size() <= 100;
+    }
+
+    function isValidUserAccount(data) {
+      return data.keys().hasAll(['id', 'username', 'fullName', 'phone', 'role', 'createdAt']) &&
+        data.username is string && data.username.size() >= 3 && data.username.size() <= 64 &&
+        data.fullName is string && data.fullName.size() <= 150 &&
+        data.phone is string && data.phone.size() <= 25 &&
+        data.role in ['admin', 'user'] &&
+        data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['id', 'title', 'message', 'time', 'type', 'read']) &&
+        data.title is string && data.title.size() <= 150 &&
+        data.message is string && data.message.size() <= 500 &&
+        data.type in ['request', 'donor', 'system', 'urgent'] &&
+        data.read is bool;
+    }
+
+    function isValidAnnouncement(data) {
+      return data.keys().hasAll(['id', 'title', 'content', 'type', 'isActive', 'createdAt']) &&
+        data.title is string && data.title.size() <= 150 &&
+        data.content is string && data.content.size() <= 1000 &&
+        data.type in ['urgent', 'info', 'campaign'] &&
+        data.isActive is bool &&
+        data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'action', 'actionLabel', 'details', 'timestamp']) &&
+        data.action is string && data.action.size() <= 64 &&
+        data.actionLabel is string && data.actionLabel.size() <= 150 &&
+        data.details is string && data.details.size() <= 1000 &&
+        data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidDeviceToken(data) {
+      return data.keys().hasAll(['id', 'token', 'platform', 'enabled', 'updatedAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.token is string && data.token.size() <= 500 &&
+        data.platform in ['web', 'android', 'ios'] &&
+        data.enabled is bool &&
+        data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidWhatsAppDispatch(data) {
+      return data.keys().hasAll(['id', 'requestId', 'donorId', 'donorPhone', 'status', 'timestamp']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.requestId is string && data.requestId.size() <= 128 &&
+        data.donorId is string && data.donorId.size() <= 128 &&
+        data.donorPhone is string && data.donorPhone.size() <= 30 &&
+        data.status in ['sent', 'delivered', 'failed', 'simulated', 'skipped_duplicate'] &&
+        data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidHospitalAd(data) {
+      return data.keys().hasAll(['id', 'hospitalName', 'imageUrl', 'phone', 'address', 'startDate', 'endDate', 'isActive', 'displayOrder', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.hospitalName is string && data.hospitalName.size() >= 2 && data.hospitalName.size() <= 150 &&
+        data.imageUrl is string && data.imageUrl.size() >= 5 && data.imageUrl.size() <= 300000 &&
+        data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 25 &&
+        data.address is string && data.address.size() >= 2 && data.address.size() <= 250 &&
+        data.startDate is string && data.startDate.size() <= 20 &&
+        data.endDate is string && data.endDate.size() <= 20 &&
+        data.isActive is bool &&
+        data.displayOrder is number && data.displayOrder >= 0 && data.displayOrder <= 10000 &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        (!('websiteUrl' in data) || (data.websiteUrl is string && data.websiteUrl.size() <= 500)) &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 1500)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    function isValidHospital(data) {
+      return data.keys().hasAll(['id', 'name', 'imageUrl', 'displayOrder', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() >= 2 && data.name.size() <= 150 &&
+        data.imageUrl is string && data.imageUrl.size() >= 5 && data.imageUrl.size() <= 300000 &&
+        data.displayOrder is number && data.displayOrder >= 0 && data.displayOrder <= 10000 &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 1500)) &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 250)) &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 25)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    function isValidDoctor(data) {
+      return data.keys().hasAll(['id', 'hospitalId', 'fullName', 'specialty', 'imageUrl', 'displayOrder', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.hospitalId is string && data.hospitalId.size() >= 2 && data.hospitalId.size() <= 128 &&
+        data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 150 &&
+        data.specialty is string && data.specialty.size() >= 2 && data.specialty.size() <= 120 &&
+        data.imageUrl is string && data.imageUrl.size() <= 300000 &&
+        data.displayOrder is number && data.displayOrder >= 0 && data.displayOrder <= 10000 &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        (!('bio' in data) || (data.bio is string && data.bio.size() <= 1000)) &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 25)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    // 1. Donors Collection: Public registry read, validated create/update, authoritative deletion by Admin only
+    match /donors/{donorId} {
+      allow read: if true;
+      allow create: if isValidId(donorId) && isValidDonor(incoming());
+      allow update: if isValidId(donorId) && isValidDonor(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 2. Blood Requests Collection: Public read, validated create/update, deletion by Admin only
+    match /requests/{requestId} {
+      allow read: if true;
+      allow create: if isValidId(requestId) && isValidBloodRequest(incoming());
+      allow update: if isValidId(requestId) && isValidBloodRequest(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 3. Districts Collection: Public read, management by Admin only
+    match /districts/{districtId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin() && isValidId(districtId) && (request.method == 'delete' || isValidDistrict(incoming()));
+    }
+
+    // 4. Users Collection: Strict registration enforcement (no self-assigned admin)
+    match /users/{userId} {
+      allow read: if true;
+      // Normal registration MUST have role == 'user'
+      allow create: if isValidId(userId) && isValidUserAccount(incoming()) && (incoming().role == 'user' || isAdmin());
+      // Role modification requires Admin privileges
+      allow update: if isValidId(userId) && isValidUserAccount(incoming()) && (isAdmin() || (incoming().role == existing().role));
+      allow delete: if isAdmin();
+    }
+
+    // 5. Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow create: if isValidId(notificationId) && isValidNotification(incoming());
+      allow update: if isValidId(notificationId);
+      allow delete: if isValidId(notificationId);
+    }
+
+    // 6. Announcements Collection: Public read, management by Admin only
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin() && isValidId(announcementId) && (request.method == 'delete' || isValidAnnouncement(incoming()));
+    }
+
+    // 7. Audit Logs Collection: Public read transparency, verified creation, deletion by verified Central Admin only
+    match /audit_logs/{logId} {
+      allow read: if true;
+      allow create: if isValidId(logId) && isValidAuditLog(incoming());
+      allow update: if false;
+      allow delete: if isCentralAdmin() && isValidId(logId);
+    }
+
+    // 8. Settings Document: Public read, write by Admin only
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isCentralAdmin();
+    }
+
+    // 9. Admins Metadata Collection: Protected to verified central admin credentials only
+    match /admins/{adminId} {
+      allow read: if isCentralAdmin();
+      allow create, update: if isValidId(adminId) && (
+        (isVerifiedCentralAdminEmail() && adminId == request.auth.uid) ||
+        isCentralAdmin()
+      );
+      allow delete: if isCentralAdmin();
+    }
+
+    // 10. Test collection for boot connectivity check
+    match /test/{testId} {
+      allow read: if true;
+    }
+
+    // 11. FCM Device Tokens for Web and Native Android APK push notifications
+    match /fcm_tokens/{tokenId} {
+      allow read: if true;
+      allow create: if isValidId(tokenId) && isValidDeviceToken(incoming());
+      allow update: if isValidId(tokenId) && isValidDeviceToken(incoming());
+      allow delete: if isAdmin() || isValidId(tokenId);
+    }
+
+    // 12. WhatsApp Dispatches Log
+    match /whatsapp_dispatches/{dispatchId} {
+      allow read: if true;
+      allow create: if isValidId(dispatchId) && isValidWhatsAppDispatch(incoming());
+      allow update: if isValidId(dispatchId) && isValidWhatsAppDispatch(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 13. Hospital & Medical Center Ads: Public read, management by Admin only
+    match /hospital_ads/{adId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(adId) && isValidHospitalAd(incoming()) && incoming().id == adId;
+      allow update: if isAdmin() && isValidId(adId) && isValidHospitalAd(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(adId);
+    }
+
+    // 14. Hospitals Directory: Public read, management by Admin only
+    match /hospitals/{hospitalId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(hospitalId) && isValidHospital(incoming()) && incoming().id == hospitalId;
+      allow update: if isAdmin() && isValidId(hospitalId) && isValidHospital(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(hospitalId);
+    }
+
+    // 15. Doctors Directory: Public read, management by Admin only
+    match /doctors/{doctorId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(doctorId) && isValidDoctor(incoming()) && incoming().id == doctorId;
+      allow update: if isAdmin() && isValidId(doctorId) && isValidDoctor(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(doctorId);
+    }
+
+    // Catch-all Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

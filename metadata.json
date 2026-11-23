@@ -1,0 +1,6 @@
+{
+  "name": "سجل المتبرعين بالدم – مديرية قعطبة",
+  "description": "قاعدة بيانات ونظام مركزي ذكي لإدارة سجل المتبرعين بالدم وتتبع طلبات الدم العاجلة والتصدير التلقائي اليومي إلى ملفات Excel في مديرية قعطبة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

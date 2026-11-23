@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">سجل المتبرعين بالدم - قعطبة</string>
+    <string name="title_activity_main">سجل المتبرعين بالدم - قعطبة</string>
+    <string name="package_name">org.alnasr.bloodqatabah</string>
+    <string name="custom_url_scheme">org.alnasr.bloodqatabah</string>
+</resources>

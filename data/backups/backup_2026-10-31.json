@@ -1,0 +1,898 @@
+{
+  "donors": [
+    {
+      "fullName": "علي عبده موته",
+      "district": "مديرية قعطبة - المركز",
+      "isAvailable": true,
+      "bloodType": "B-",
+      "lastDonationDate": "2026-10-30",
+      "id": "donor-1793380694384-499",
+      "area": "قعطبة",
+      "phone": "778888885",
+      "createdAt": "2026-10-30T17:18:14.384Z"
+    },
+    {
+      "phone": "777135825",
+      "district": "مديرية قعطبة - المركز",
+      "id": "donor-1793200572289-60",
+      "bloodType": "O+",
+      "createdAt": "2026-10-28T15:16:12.290Z",
+      "isAvailable": true,
+      "area": "مدينة قعطبة",
+      "fullName": "عمر عبدالكريم مسعد ثابت"
+    },
+    {
+      "phone": "774359716",
+      "createdAt": "2026-10-28T17:36:58.865Z",
+      "id": "donor-1793209018865-47",
+      "area": "قعطبه",
+      "fullName": "حزام عبدالله الفتيني",
+      "bloodType": "O+",
+      "isAvailable": true,
+      "district": "مديرية قعطبة - المركز"
+    },
+    {
+      "isAvailable": false,
+      "phone": "779998877",
+      "createdAt": "2026-10-29T08:49:22.579Z",
+      "bloodType": "O+",
+      "fullName": "اختبار مهندس أمان السجل",
+      "area": "سوق قعطبة",
+      "district": "مديرية قعطبة - المركز",
+      "id": "test-donor-verify-1793263762579"
+    },
+    {
+      "bloodType": "AB-",
+      "district": "مديرية قعطبة - المركز",
+      "phone": "777516313",
+      "fullName": "علي طالب علي",
+      "area": "قعطبة",
+      "createdAt": "2026-10-30T16:19:24.825Z",
+      "isAvailable": true,
+      "id": "donor-1793377164825-76"
+    },
+    {
+      "id": "donor-1793140126346-936",
+      "phone": "788858888",
+      "bloodType": "A-",
+      "area": "قعطبة",
+      "fullName": "علي احمد عبده",
+      "createdAt": "2026-10-27T22:28:46.346Z",
+      "isAvailable": false,
+      "district": "مديرية قعطبة - المركز"
+    },
+    {
+      "isAvailable": true,
+      "phone": "774424683",
+      "area": "مدينة قعطبة",
+      "createdAt": "2026-10-27T19:38:40.869Z",
+      "bloodType": "O+",
+      "fullName": "اسماعيل خالد محسن عبدالباري",
+      "id": "donor-1793129920869-32310",
+      "district": "قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "phone": "777482033",
+      "createdAt": "2026-10-27T19:38:40.868Z",
+      "area": "مدينة قعطبة",
+      "bloodType": "A+",
+      "id": "donor-1793129920868-28525",
+      "fullName": "رضوان عبدالقادر كحيل",
+      "district": "قعطبة"
+    },
+    {
+      "bloodType": "A+",
+      "fullName": "صلاح أحمد محمد شريبه",
+      "isAvailable": true,
+      "district": "قعطبة",
+      "id": "donor-1793129920868-37674",
+      "phone": "770709712",
+      "area": "مدينة قعطبة",
+      "createdAt": "2026-10-27T19:38:40.868Z"
+    },
+    {
+      "phone": "775418439",
+      "bloodType": "B+",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.868Z",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920868-93959",
+      "isAvailable": true,
+      "fullName": "حمادة عبدالله علي"
+    },
+    {
+      "isAvailable": true,
+      "phone": "770455113",
+      "area": "مدينة قعطبة",
+      "createdAt": "2026-10-27T19:38:40.867Z",
+      "bloodType": "A+",
+      "fullName": "سلطان عبدالحميد منور باعلوي",
+      "id": "donor-1793129920867-3172",
+      "district": "قعطبة"
+    },
+    {
+      "district": "قعطبة",
+      "bloodType": "O+",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920867-32903",
+      "isAvailable": true,
+      "fullName": "عزام صلاح عبدة مساعد العولقي",
+      "phone": "776221338",
+      "createdAt": "2026-10-27T19:38:40.867Z"
+    },
+    {
+      "fullName": "مجاهد محمد علي الحداد",
+      "area": "مدينة قعطبة",
+      "phone": "770682196",
+      "id": "donor-1793129920867-43631",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.867Z",
+      "bloodType": "A+",
+      "isAvailable": true
+    },
+    {
+      "isAvailable": true,
+      "area": "مدينة قعطبة",
+      "bloodType": "A-",
+      "phone": "770292874",
+      "id": "donor-1793129920867-48895",
+      "createdAt": "2026-10-27T19:38:40.867Z",
+      "fullName": "مجد خالد طالب",
+      "district": "قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "bloodType": "A+",
+      "fullName": "محمد حليف عثمان",
+      "district": "قعطبة",
+      "phone": "776415465",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920867-75479",
+      "createdAt": "2026-10-27T19:38:40.867Z"
+    },
+    {
+      "bloodType": "O+",
+      "fullName": "يوسف عصام سعيد ربيد",
+      "district": "قعطبة",
+      "phone": "734883702",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920867-80741",
+      "isAvailable": true,
+      "createdAt": "2026-10-27T19:38:40.867Z"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.867Z",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920867-95906",
+      "isAvailable": true,
+      "fullName": "خالد محمد محسن الكحلاني",
+      "district": "قعطبة",
+      "phone": "774853720",
+      "bloodType": "O+"
+    },
+    {
+      "area": "مدينة قعطبة",
+      "bloodType": "A+",
+      "createdAt": "2026-10-27T19:38:40.867Z",
+      "fullName": "محمد عبدالجبار ريشان",
+      "district": "قعطبة",
+      "id": "donor-1793129920867-9864",
+      "phone": "771084559",
+      "isAvailable": true
+    },
+    {
+      "fullName": "عبدالله علي محمد الجيلاني",
+      "isAvailable": true,
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "phone": "772818347",
+      "bloodType": "A+",
+      "id": "donor-1793129920866-14701",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "fullName": "كمال يحيى محمد الامير",
+      "isAvailable": true,
+      "phone": "774860529",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "id": "donor-1793129920866-23094",
+      "bloodType": "O+",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "phone": "778539628",
+      "isAvailable": true,
+      "area": "مدينة قعطبة",
+      "district": "قعطبة",
+      "id": "donor-1793129920866-32051",
+      "bloodType": "O-",
+      "fullName": "صادق محمد قاسم ريشان"
+    },
+    {
+      "id": "donor-1793129920866-35140",
+      "isAvailable": true,
+      "phone": "730025452",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "area": "مدينة قعطبة",
+      "fullName": "عبد المجيد خالد الهدالي",
+      "bloodType": "O+",
+      "district": "قعطبة"
+    },
+    {
+      "phone": "777858331",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "isAvailable": true,
+      "fullName": "حسام عبدالرب المرح",
+      "id": "donor-1793129920866-51227",
+      "bloodType": "B+",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "bloodType": "O+",
+      "phone": "736063050",
+      "fullName": "الدكتور نجم عبدالله قايد الاصهب",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "id": "donor-1793129920866-51444",
+      "district": "قعطبة",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "district": "قعطبة",
+      "id": "donor-1793129920866-5277",
+      "isAvailable": true,
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "fullName": "عبدالله عبدالخالق النجار",
+      "area": "مدينة قعطبة",
+      "bloodType": "A+",
+      "phone": "733255969"
+    },
+    {
+      "fullName": "أحمد فضل يحيى السباغ",
+      "phone": "778871016",
+      "id": "donor-1793129920866-67440",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "isAvailable": true,
+      "bloodType": "A+",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "isAvailable": true,
+      "fullName": "سعيد محمد الغيماني",
+      "area": "مدينة قعطبة",
+      "phone": "771482280",
+      "id": "donor-1793129920866-80160",
+      "bloodType": "O+",
+      "district": "قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "bloodType": "O+",
+      "fullName": "ابراهيم مسعد موسى المريسي",
+      "district": "قعطبة",
+      "phone": "781598929",
+      "id": "donor-1793129920866-85638",
+      "createdAt": "2026-10-27T19:38:40.866Z",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "bloodType": "A+",
+      "phone": "771708433",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "district": "قعطبة",
+      "id": "donor-1793129920862-11336",
+      "fullName": "مفيد عبده عبدالله المرغمي",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "fullName": "عبدالرحمن محمد احمد ثابت",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "district": "قعطبة",
+      "area": "مدينة قعطبة",
+      "bloodType": "O+",
+      "phone": "777309533",
+      "id": "donor-1793129920862-1542",
+      "isAvailable": true
+    },
+    {
+      "phone": "775788096",
+      "fullName": "عمار محمد احمد حسن العولقي",
+      "isAvailable": true,
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "id": "donor-1793129920862-25473",
+      "bloodType": "O+",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "bloodType": "O+",
+      "id": "donor-1793129920862-29393",
+      "phone": "772249949",
+      "area": "مدينة قعطبة",
+      "fullName": "محمد محمد السريحي",
+      "district": "قعطبة",
+      "isAvailable": true,
+      "createdAt": "2026-10-27T19:38:40.862Z"
+    },
+    {
+      "isAvailable": true,
+      "bloodType": "O+",
+      "id": "donor-1793129920862-38210",
+      "area": "مدينة قعطبة",
+      "fullName": "عماد علي عبده علي كحيل",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "phone": "782644577",
+      "district": "قعطبة"
+    },
+    {
+      "bloodType": "O+",
+      "id": "donor-1793129920862-40496",
+      "isAvailable": true,
+      "phone": "777492858",
+      "fullName": "الاستاذ نجيب عبدالله الهادي",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "district": "قعطبة",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "isAvailable": true,
+      "district": "قعطبة",
+      "fullName": "عبدالله محمد احمد الفقيه",
+      "bloodType": "A+",
+      "phone": "782797148",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "id": "donor-1793129920862-49608",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "district": "قعطبة",
+      "phone": "770795394",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793129920862-5208",
+      "isAvailable": true,
+      "bloodType": "AB+",
+      "fullName": "محمد علي محسن المريسي"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "isAvailable": true,
+      "id": "donor-1793129920862-62743",
+      "area": "مدينة قعطبة",
+      "district": "قعطبة",
+      "bloodType": "A-",
+      "phone": "775014997",
+      "fullName": "ايمن محسن الغيماني"
+    },
+    {
+      "id": "donor-1793129920862-93744",
+      "bloodType": "O+",
+      "isAvailable": true,
+      "phone": "778937536",
+      "fullName": "الشيخ أحمد علاو دار السيد",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "area": "مدينة قعطبة",
+      "district": "قعطبة"
+    },
+    {
+      "id": "donor-1793129920366-27165",
+      "phone": "774358118",
+      "area": "مدينة قعطبة",
+      "bloodType": "A+",
+      "isAvailable": true,
+      "createdAt": "2026-10-27T19:38:40.366Z",
+      "fullName": "انس عميران",
+      "district": "قعطبة"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.366Z",
+      "isAvailable": true,
+      "phone": "778846219",
+      "area": "مدينة قعطبة",
+      "district": "قعطبة",
+      "id": "donor-1793129920366-42447",
+      "fullName": "اكرم يحيى مسعد الصيادي",
+      "bloodType": "A+"
+    },
+    {
+      "createdAt": "2026-10-27T19:38:40.366Z",
+      "area": "مدينة قعطبة",
+      "fullName": "صالح صالح محمد مساعد الرقيمي",
+      "isAvailable": true,
+      "phone": "777827471",
+      "district": "قعطبة",
+      "bloodType": "O+",
+      "id": "donor-1793129920366-82795"
+    },
+    {
+      "phone": "775462651",
+      "fullName": "صدام عبده عبدالله ريشان",
+      "district": "قعطبة",
+      "isAvailable": true,
+      "createdAt": "2026-10-27T19:38:40.366Z",
+      "id": "donor-1793129920366-97330",
+      "bloodType": "O+",
+      "area": "مدينة قعطبة"
+    },
+    {
+      "bloodType": "A+",
+      "fullName": "احمد احمد صالح الحبيل",
+      "district": "قعطبة",
+      "id": "donor-1793129920365-50831",
+      "isAvailable": true,
+      "phone": "774653739",
+      "area": "مدينة قعطبة",
+      "createdAt": "2026-10-27T19:38:40.365Z"
+    },
+    {
+      "bloodType": "A+",
+      "district": "قعطبة",
+      "area": "مدينة قعطبة",
+      "createdAt": "2026-10-27T19:38:40.862Z",
+      "fullName": "احمد صالح محمد ابوطالب",
+      "notes": "واتساب واتصال",
+      "isAvailable": false,
+      "phone": "771950464",
+      "id": "donor-1793125185687-206"
+    },
+    {
+      "phone": "778145042",
+      "district": "قعطبة",
+      "createdAt": "2026-10-27T19:38:40.365Z",
+      "bloodType": "O+",
+      "area": "مدينة قعطبة",
+      "id": "donor-1793125932135-31710",
+      "isAvailable": true,
+      "fullName": "عصام ربيد"
+    },
+    {
+      "id": "donor-1792948317499-700",
+      "district": "مديرية قعطبة - المركز",
+      "fullName": "زياد مثنى احمد  الصيادي",
+      "area": "الخفجي",
+      "phone": "773633918",
+      "notes": "اتصال + واتساب",
+      "createdAt": "2026-10-25T17:11:57.499Z",
+      "isAvailable": true,
+      "bloodType": "O+"
+    },
+    {
+      "id": "donor-1793012969101-960",
+      "createdAt": "2026-10-26T11:09:29.101Z",
+      "phone": "778777777",
+      "bloodType": "A+",
+      "district": "مديرية قعطبة - المركز",
+      "fullName": "علي عبدالرحمن علي",
+      "isAvailable": true,
+      "area": "سوق قعطبة"
+    },
+    {
+      "phone": "787777777",
+      "area": "سوق قعطبة",
+      "bloodType": "O+",
+      "fullName": "ابو محمد علي صالح",
+      "district": "مديرية قعطبة - المركز",
+      "createdAt": "2026-10-27T07:47:39.739Z",
+      "isAvailable": true,
+      "id": "donor-1793087259739-77"
+    },
+    {
+      "id": "donor-1792883986169-92617",
+      "fullName": "متبرع آخر مميز",
+      "phone": "770000002",
+      "bloodType": "A+",
+      "district": "مريس",
+      "area": "الجبجب",
+      "isAvailable": false,
+      "createdAt": "2026-10-24T23:19:46.169Z"
+    },
+    {
+      "id": "donor-1792883981030-23146",
+      "fullName": "متبرع تجريبي جديد قعطبة",
+      "phone": "770000001",
+      "bloodType": "O+",
+      "district": "مديرية قعطبة - المركز",
+      "area": "مريس",
+      "isAvailable": false,
+      "createdAt": "2026-10-24T23:19:41.030Z"
+    },
+    {
+      "id": "donor-1",
+      "fullName": "عبدالله محمد صالح القحطبي",
+      "phone": "771234567",
+      "bloodType": "O+",
+      "district": "مديرية قعطبة - المركز",
+      "area": "حي السلام",
+      "isAvailable": true,
+      "lastDonationDate": "2026-06-15",
+      "notes": "متبرع منتظم، جاهز في أي وقت طارئ",
+      "createdAt": "2026-08-01T10:00:00Z"
+    },
+    {
+      "id": "donor-2",
+      "fullName": "صخر عبدالكريم القعطبي",
+      "phone": "734567890",
+      "bloodType": "O-",
+      "district": "قعطبة الشمالية",
+      "area": "الجبارة",
+      "isAvailable": true,
+      "lastDonationDate": "2026-05-10",
+      "notes": "فصيلة نادرة معطاء عام",
+      "createdAt": "2026-08-05T12:30:00Z"
+    },
+    {
+      "id": "donor-3",
+      "fullName": "أحمد فضل المنصوب",
+      "phone": "773456789",
+      "bloodType": "A+",
+      "district": "مديرية قعطبة - المركز",
+      "area": "سوق قعطبة",
+      "isAvailable": true,
+      "lastDonationDate": "2026-07-20",
+      "notes": "متواجد بالقرب من مستشفى السلام",
+      "createdAt": "2026-08-10T09:15:00Z"
+    },
+    {
+      "id": "donor-4",
+      "fullName": "جمال يحيى الشعيبي",
+      "phone": "712398745",
+      "bloodType": "B+",
+      "district": "سناح",
+      "area": "سوق سناح",
+      "isAvailable": true,
+      "lastDonationDate": "2026-08-25",
+      "notes": "لديه وسيلة مواصلات سريعة",
+      "createdAt": "2026-08-12T14:00:00Z"
+    },
+    {
+      "id": "donor-5",
+      "fullName": "وضاح ناصر الفاخري",
+      "phone": "770987654",
+      "bloodType": "AB+",
+      "district": "الفاخر",
+      "area": "حبيل العبدي",
+      "isAvailable": true,
+      "lastDonationDate": "2026-04-12",
+      "notes": "مستقبل عام، مستعد للتبرع لجميع فصائل AB",
+      "createdAt": "2026-08-15T16:20:00Z"
+    },
+    {
+      "id": "donor-6",
+      "fullName": "ماجد علي الشوكي",
+      "phone": "737890123",
+      "bloodType": "A-",
+      "district": "حمر وشخب",
+      "area": "بيت الشوكي",
+      "isAvailable": false,
+      "lastDonationDate": "2026-09-28",
+      "notes": "تبرع مؤخراً - يحتاج فترة راحة أسبوعين للجاهزية التامة",
+      "createdAt": "2026-08-18T11:45:00Z"
+    },
+    {
+      "id": "donor-7",
+      "fullName": "سيف الدين قاسم الرياشي",
+      "phone": "775678123",
+      "bloodType": "B-",
+      "district": "نقيل الشيم وريشان",
+      "area": "ريشان",
+      "isAvailable": true,
+      "lastDonationDate": "2026-06-01",
+      "notes": "فصيلة نادرة جداً",
+      "createdAt": "2026-08-20T08:00:00Z"
+    },
+    {
+      "id": "donor-8",
+      "fullName": "ردفان عبدالرحمن مسعد",
+      "phone": "716543210",
+      "bloodType": "O+",
+      "district": "قعطبة الشمالية",
+      "area": "القرين",
+      "isAvailable": true,
+      "lastDonationDate": "2026-07-04",
+      "notes": "متطوع ناشط في قوافل الإغاثة الطبية",
+      "createdAt": "2026-08-22T13:10:00Z"
+    },
+    {
+      "id": "donor-9",
+      "fullName": "هشام صالح النجار",
+      "phone": "778901234",
+      "bloodType": "AB-",
+      "district": "مديرية قعطبة - المركز",
+      "area": "حي النصر",
+      "isAvailable": true,
+      "lastDonationDate": "2026-03-15",
+      "notes": "فصيلة سالبة نادرة",
+      "createdAt": "2026-08-25T17:00:00Z"
+    },
+    {
+      "id": "donor-10",
+      "fullName": "بشير علوي سليم",
+      "phone": "739012345",
+      "bloodType": "O-",
+      "district": "الفاخر",
+      "area": "سليم",
+      "isAvailable": true,
+      "lastDonationDate": "2026-07-15",
+      "notes": "جاهز للحالات الحرجة",
+      "createdAt": "2026-09-01T10:00:00Z"
+    }
+  ],
+  "requests": [
+    {
+      "createdAt": "2026-10-27T17:18:18.472Z",
+      "contactName": "والدة",
+      "bloodType": "O+",
+      "id": "req-1793121498472-224",
+      "unitsNeeded": 1,
+      "contactPhone": "773633918",
+      "caseDetails": "جراحية",
+      "requestDate": "2026-10-27",
+      "urgency": "critical",
+      "hospital": "طيبه",
+      "patientName": "محسن صالح",
+      "status": "fulfilled",
+      "district": "مديرية قعطبة - المركز",
+      "area": "العناية"
+    },
+    {
+      "area": "قعطبة",
+      "contactName": "الدكتور علي",
+      "status": "open",
+      "requestDate": "2026-10-26",
+      "unitsNeeded": 1,
+      "createdAt": "2026-10-26T18:58:55.843Z",
+      "contactPhone": "770236765",
+      "hospital": "مستشفى الضالع",
+      "caseDetails": "حاله حرجه",
+      "district": "مديرية قعطبة - المركز",
+      "urgency": "critical",
+      "bloodType": "O+",
+      "id": "req-1793041135843-454",
+      "patientName": "علي سعيد علي"
+    },
+    {
+      "id": "req-1",
+      "patientName": "الطفل أيمن خالد القعطبي",
+      "bloodType": "O-",
+      "unitsNeeded": 2,
+      "hospital": "مستشفى السلام التخصصي - قعطبة",
+      "district": "مديرية قعطبة - المركز",
+      "area": "مركز المدينة",
+      "urgency": "critical",
+      "status": "open",
+      "contactName": "والد الطفل (خالد القعطبي)",
+      "contactPhone": "777443322",
+      "caseDetails": "حالة نزيف حاد أثر عملية جراحية طارئة، يحتاج وحدتين فصيلة O سالبة فوراً.",
+      "requestDate": "2026-10-22",
+      "createdAt": "2026-10-22T08:30:00Z"
+    },
+    {
+      "id": "req-2",
+      "patientName": "أم عبدالملك القحطبي",
+      "bloodType": "A+",
+      "unitsNeeded": 3,
+      "hospital": "مستشفى النصر العام - الضالع",
+      "district": "سناح",
+      "area": "سوق سناح",
+      "urgency": "critical",
+      "status": "open",
+      "contactName": "أخ المريضة (مصلح القحطبي)",
+      "contactPhone": "733221144",
+      "caseDetails": "عملية ولادة قيصرية مع انخفاض حاد في خضاب الدم (الهيموجلوبين 6.5).",
+      "requestDate": "2026-10-22",
+      "createdAt": "2026-10-22T10:15:00Z"
+    },
+    {
+      "id": "req-3",
+      "patientName": "طارق عبدالسلام الحالمي",
+      "bloodType": "B+",
+      "unitsNeeded": 1,
+      "hospital": "مستوصف قعطبة الخيري",
+      "district": "مديرية قعطبة - المركز",
+      "area": "حي السلام",
+      "urgency": "urgent",
+      "status": "open",
+      "contactName": "ابن عمه (عادل الحالمي)",
+      "contactPhone": "711998877",
+      "caseDetails": "مريض ثلاسيميا بحاجة لتجديد كيس دم بصورة منتظمة اليوم.",
+      "requestDate": "2026-10-21",
+      "createdAt": "2026-10-21T16:00:00Z"
+    },
+    {
+      "id": "req-4",
+      "patientName": "فيصل عبده ناجي الشوكي",
+      "bloodType": "AB+",
+      "unitsNeeded": 2,
+      "hospital": "مستشفى التضامن التخصصي",
+      "district": "حمر وشخب",
+      "area": "بيت الشوكي",
+      "urgency": "moderate",
+      "status": "fulfilled",
+      "contactName": "شقيقه (جميل الشوكي)",
+      "contactPhone": "772334455",
+      "caseDetails": "تم توفير الدم بنجاح بفضل متبرعي منطقة مديرية قعطبة.",
+      "requestDate": "2026-10-19",
+      "createdAt": "2026-10-19T11:20:00Z"
+    }
+  ],
+  "districts": [
+    {
+      "id": "dist-1",
+      "name": "مديرية قعطبة - المركز",
+      "areas": [
+        "مركز المدينة",
+        "سوق قعطبة",
+        "حي النصر",
+        "حي السلام",
+        "المحطة",
+        "السهده",
+        "دار السلام"
+      ]
+    },
+    {
+      "id": "dist-2",
+      "name": "مريس",
+      "areas": [
+        "الجبارة",
+        "القرين",
+        "صولان",
+        "الجعديات",
+        "يعيس",
+        "القهرة",
+        "العرفاف",
+        "حبيل السوق"
+      ]
+    },
+    {
+      "id": "dist-3",
+      "name": "الفاخر",
+      "areas": [
+        "سوق الفاخر",
+        "حبيل العبدي",
+        "مرخزة",
+        "سليم",
+        "القفلة",
+        "باب غلق"
+      ]
+    },
+    {
+      "id": "dist-4",
+      "name": "سناح",
+      "areas": [
+        "سوق سناح",
+        "الوبح",
+        "القبة",
+        "خوبر",
+        "لكمة الدوكي"
+      ]
+    },
+    {
+      "id": "dist-5",
+      "name": "حمر وشخب",
+      "areas": [
+        "شخب",
+        "حمر السادة",
+        "حمر القوز",
+        "دار السيد",
+        "بيت الشوكي"
+      ]
+    },
+    {
+      "id": "dist-6",
+      "name": "نقيل الشيم وريشان",
+      "areas": [
+        "نقيل الشيم",
+        "ريشان",
+        "كنه",
+        "الحقف",
+        "حمام الفردوس"
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1792868124743",
+      "title": "متبرع جديد مسجل 🩸",
+      "message": "تم تسجيل المتبرع عبدالرحمن عبدربه الشعيبي فصيلة (O+) في مديرية قعطبة - المركز - حي النصر.",
+      "time": "الآن",
+      "type": "donor",
+      "read": false,
+      "linkPage": "donors",
+      "itemId": "donor-1792868124743-312"
+    },
+    {
+      "id": "notif-1792816506468",
+      "title": "تم توليد ملف Excel وحفظه بالسيرفر 📊",
+      "message": "تم توليد ملف qaatabah_blood_donors_2026-10-24.xlsx بنجاح. يمكنك تحميله مباشرة من لوحة الإدارة.",
+      "time": "الآن",
+      "type": "system",
+      "read": false,
+      "linkPage": "admin"
+    },
+    {
+      "id": "notif-1",
+      "title": "طلب دم عاجل جداً في قعطبة 🚨",
+      "message": "احتياج طارئ لـ وحدتين من فصيلة O- بمستشفى السلام التخصصي للطفل أيمن خالد.",
+      "time": "منذ ساعة",
+      "type": "urgent",
+      "read": false,
+      "linkPage": "requests",
+      "itemId": "req-1"
+    },
+    {
+      "id": "notif-2",
+      "title": "طلب دم عاجل A+ 🩸",
+      "message": "حالة ولادة طارئة بمستشفى النصر العام بحاجة لـ 3 وحدات فصيلة A+.",
+      "time": "منذ ساعتين",
+      "type": "urgent",
+      "read": false,
+      "linkPage": "requests",
+      "itemId": "req-2"
+    },
+    {
+      "id": "notif-3",
+      "title": "نظام التصدير اليومي إلى Excel مفعل 📊",
+      "message": "تم تفعيل التصدير التلقائي اليومي لسجل المتبرعين إلى البريد الإلكتروني المعتمد.",
+      "time": "اليوم",
+      "type": "system",
+      "read": true,
+      "linkPage": "admin"
+    }
+  ],
+  "adminSettings": {
+    "pin": "7708854",
+    "pinUpdatedAt": 1793343619657,
+    "recoveryCode": "alsh486iby-2026",
+    "recipientEmail": "abdulrahmanalshaiby2028@gmail.com",
+    "dailyExportHour": 8,
+    "dailyExportMinute": 0,
+    "autoExportEnabled": true,
+    "smtpHost": "",
+    "smtpPort": 587,
+    "smtpUser": "",
+    "smtpPass": "",
+    "smtpSecure": false,
+    "smtpFrom": "qaatabah-blood-registry@yemen.org",
+    "lastExportAt": "2026-10-24T04:35:06.468Z",
+    "lastExportStatus": "saved_locally",
+    "lastExportMessage": "تم إنشاء وحفظ ملف Excel بنجاح في السيرفر (10 متبرع). جاهز للتحميل، وبانتظار تفعيل SMTP للإرسال المباشر."
+  },
+  "exportLogs": [
+    {
+      "id": "export-1792816506468",
+      "timestamp": "2026-10-24T04:35:06.468Z",
+      "filename": "qaatabah_blood_donors_2026-10-24.xlsx",
+      "recipient": "abdulrahmanalshaiby2028@gmail.com",
+      "donorsCount": 10,
+      "status": "saved_locally",
+      "message": "تم إنشاء وحفظ ملف Excel بنجاح في السيرفر (10 متبرع). جاهز للتحميل، وبانتظار تفعيل SMTP للإرسال المباشر."
+    }
+  ],
+  "users": [
+    {
+      "id": "user-admin",
+      "username": "admin",
+      "fullName": "مسؤول السجل المركزي - قعطبة",
+      "phone": "771234567",
+      "role": "admin",
+      "createdAt": "2026-08-01T00:00:00Z"
+    },
+    {
+      "id": "user-default",
+      "username": "user",
+      "password": "user123",
+      "fullName": "متبرع مسجل - قعطبة",
+      "phone": "770112233",
+      "role": "user",
+      "createdAt": "2026-08-01T00:00:00Z",
+      "lastLoginAt": "2026-10-25T13:32:58.513Z"
+    }
+  ]
+}

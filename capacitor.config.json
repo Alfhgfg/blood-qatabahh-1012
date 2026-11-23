@@ -1,0 +1,13 @@
+{
+  "appId": "org.alnasr.bloodqatabah",
+  "appName": "سجل المتبرعين بالدم - قعطبة",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

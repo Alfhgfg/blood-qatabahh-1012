@@ -1,0 +1,304 @@
+{
+  "entities": {
+    "Donor": {
+      "title": "Donor",
+      "description": "Blood donor in Qa'tabah and surrounding areas",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "bloodType": { "type": "string", "enum": ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"] },
+        "district": { "type": "string", "maxLength": 100 },
+        "area": { "type": "string", "maxLength": 100 },
+        "isAvailable": { "type": "boolean" },
+        "lastDonationDate": { "type": "string", "maxLength": 30 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "whatsappOptIn": { "type": "boolean" }
+      },
+      "required": ["id", "fullName", "phone", "bloodType", "district", "area", "isAvailable", "createdAt"]
+    },
+    "BloodRequest": {
+      "title": "BloodRequest",
+      "description": "Urgent blood request for patients in local hospitals",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "patientName": { "type": "string", "maxLength": 150 },
+        "bloodType": { "type": "string", "enum": ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"] },
+        "unitsNeeded": { "type": "number" },
+        "hospital": { "type": "string", "maxLength": 150 },
+        "district": { "type": "string", "maxLength": 100 },
+        "urgency": { "type": "string", "enum": ["critical", "urgent", "moderate", "normal"] },
+        "status": { "type": "string", "enum": ["open", "fulfilled", "cancelled"] },
+        "contactPhone": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "patientName", "bloodType", "unitsNeeded", "hospital", "district", "urgency", "status", "contactPhone", "createdAt"]
+    },
+    "District": {
+      "title": "District",
+      "description": "Administrative district and villages in Qa'tabah and surrounding areas",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "areas": { "type": "array" }
+      },
+      "required": ["id", "name", "areas"]
+    },
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Application user account for donors and administrators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "username": { "type": "string", "maxLength": 64 },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "email": { "type": "string", "maxLength": 150 },
+        "photoUrl": { "type": "string", "maxLength": 100000 },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "linkedDonorId": { "type": "string", "maxLength": 128 },
+        "donationHistory": { "type": "array" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "lastLoginAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "username", "fullName", "phone", "role", "createdAt"]
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "Real-time notification for blood requests and system announcements",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 500 },
+        "time": { "type": "string", "maxLength": 50 },
+        "type": { "type": "string", "enum": ["request", "donor", "system"] },
+        "read": { "type": "boolean" },
+        "linkPage": { "type": "string", "maxLength": 50 },
+        "itemId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "title", "message", "time", "type", "read"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Announcements, alerts and campaigns managed by administrators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "content": { "type": "string", "maxLength": 1000 },
+        "type": { "type": "string", "enum": ["urgent", "info", "campaign"] },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "authorName": { "type": "string", "maxLength": 150 }
+      },
+      "required": ["id", "title", "content", "type", "isActive", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Administrative actions log tracking who added, edited, or deleted records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 64 },
+        "actionLabel": { "type": "string", "maxLength": 150 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "targetName": { "type": "string", "maxLength": 150 },
+        "adminEmail": { "type": "string", "maxLength": 150 },
+        "adminName": { "type": "string", "maxLength": 150 },
+        "timestamp": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "action", "actionLabel", "details", "timestamp"]
+    },
+    "AdminSettings": {
+      "title": "AdminSettings",
+      "description": "Administrative settings for daily email dispatch and security",
+      "type": "object",
+      "properties": {
+        "recipientEmail": { "type": "string", "maxLength": 150 },
+        "dailyExportHour": { "type": "number" },
+        "dailyExportMinute": { "type": "number" },
+        "autoExportEnabled": { "type": "boolean" },
+        "pin": { "type": "string", "maxLength": 64 },
+        "recoveryCode": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["recipientEmail", "dailyExportHour", "dailyExportMinute", "autoExportEnabled"]
+    },
+    "FCMDeviceToken": {
+      "title": "FCMDeviceToken",
+      "description": "Firebase Cloud Messaging device token registration for push notifications on Web and APK",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "token": { "type": "string", "maxLength": 500 },
+        "platform": { "type": "string", "enum": ["web", "android", "ios"] },
+        "bloodType": { "type": "string", "maxLength": 10 },
+        "district": { "type": "string", "maxLength": 100 },
+        "criticalOnly": { "type": "boolean" },
+        "enabled": { "type": "boolean" },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userAgent": { "type": "string", "maxLength": 300 },
+        "updatedAt": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "token", "platform", "enabled", "updatedAt"]
+    },
+    "WhatsAppDispatch": {
+      "title": "WhatsAppDispatch",
+      "description": "Log record for automated blood request notification dispatch via WhatsApp Business Cloud API",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "patientName": { "type": "string", "maxLength": 150 },
+        "bloodType": { "type": "string", "maxLength": 10 },
+        "donorId": { "type": "string", "maxLength": 128 },
+        "donorName": { "type": "string", "maxLength": 150 },
+        "donorPhone": { "type": "string", "maxLength": 20 },
+        "donorDistrict": { "type": "string", "maxLength": 100 },
+        "donorArea": { "type": "string", "maxLength": 100 },
+        "distanceKm": { "type": "number" },
+        "proximityLevel": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["sent", "delivered", "failed", "simulated", "skipped_duplicate"] },
+        "messageId": { "type": "string", "maxLength": 128 },
+        "errorMessage": { "type": "string", "maxLength": 500 },
+        "timestamp": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "requestId", "donorId", "donorPhone", "status", "timestamp"]
+    },
+    "HospitalAd": {
+      "title": "HospitalAd",
+      "description": "Hospital and medical center banner advertisement displayed on the home page slider",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "hospitalName": { "type": "string", "maxLength": 150 },
+        "imageUrl": { "type": "string", "maxLength": 300000 },
+        "phone": { "type": "string", "maxLength": 25 },
+        "address": { "type": "string", "maxLength": 250 },
+        "websiteUrl": { "type": "string", "maxLength": 500 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "startDate": { "type": "string", "maxLength": 20 },
+        "endDate": { "type": "string", "maxLength": 20 },
+        "isActive": { "type": "boolean" },
+        "displayOrder": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "hospitalName", "imageUrl", "phone", "address", "startDate", "endDate", "isActive", "displayOrder", "createdAt"]
+    },
+    "AppUpdateConfig": {
+      "title": "AppUpdateConfig",
+      "description": "In-app release metadata and integrity verification parameters for seamless updates",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "android": { "type": "object" },
+        "web": { "type": "object" },
+        "updatedAt": { "type": "string", "maxLength": 50 },
+        "updatedBy": { "type": "string", "maxLength": 150 }
+      },
+      "required": ["enabled", "android", "web", "updatedAt"]
+    },
+    "Hospital": {
+      "title": "Hospital",
+      "description": "Medical hospital or clinic listed in the Hospitals & Doctors directory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "imageUrl": { "type": "string", "maxLength": 300000 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "address": { "type": "string", "maxLength": 250 },
+        "phone": { "type": "string", "maxLength": 25 },
+        "displayOrder": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "imageUrl", "displayOrder", "createdAt"]
+    },
+    "Doctor": {
+      "title": "Doctor",
+      "description": "Medical doctor profile linked to a hospital in the directory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "hospitalId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "specialty": { "type": "string", "maxLength": 120 },
+        "imageUrl": { "type": "string", "maxLength": 300000 },
+        "bio": { "type": "string", "maxLength": 1000 },
+        "phone": { "type": "string", "maxLength": 25 },
+        "displayOrder": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "hospitalId", "fullName", "specialty", "imageUrl", "displayOrder", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/donors/{donorId}": {
+      "schema": { "$ref": "#/entities/Donor" },
+      "description": "Collection of blood donor profiles across Qa'tabah and surrounding directorates"
+    },
+    "/requests/{requestId}": {
+      "schema": { "$ref": "#/entities/BloodRequest" },
+      "description": "Urgent blood requests posted by medical personnel and patient families"
+    },
+    "/districts/{districtId}": {
+      "schema": { "$ref": "#/entities/District" },
+      "description": "Districts and areas reference list for geographic filtering"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "User accounts managing access permissions and donor identities"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/AppNotification" },
+      "description": "Notifications broadcast to users regarding urgent blood needs"
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Public announcements and donation campaigns"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Secure administrative audit log of all management operations"
+    },
+    "/settings/admin": {
+      "schema": { "$ref": "#/entities/AdminSettings" },
+      "description": "Administrative configuration document"
+    },
+    "/settings/app_update": {
+      "schema": { "$ref": "#/entities/AppUpdateConfig" },
+      "description": "Published Android APK and Web PWA update manifest and integrity verification metadata"
+    },
+    "/fcm_tokens/{tokenId}": {
+      "schema": { "$ref": "#/entities/FCMDeviceToken" },
+      "description": "Registered devices for FCM push notifications on Web and native Android APK"
+    },
+    "/whatsapp_dispatches/{dispatchId}": {
+      "schema": { "$ref": "#/entities/WhatsAppDispatch" },
+      "description": "Audit and delivery status log of WhatsApp Business Cloud API notifications"
+    },
+    "/hospital_ads/{adId}": {
+      "schema": { "$ref": "#/entities/HospitalAd" },
+      "description": "Hospital and medical center banner advertisements managed by administrators"
+    },
+    "/hospitals/{hospitalId}": {
+      "schema": { "$ref": "#/entities/Hospital" },
+      "description": "Hospitals directory managed by administrators"
+    },
+    "/doctors/{doctorId}": {
+      "schema": { "$ref": "#/entities/Doctor" },
+      "description": "Doctors directory linked to hospitals and managed by administrators"
+    }
+  }
+}
